@@ -3,7 +3,7 @@ import datetime
 import os
 
 import bmemcached
-from flask import Flask, request, make_response, jsonify
+from flask import Flask, request, make_response, jsonify, redirect
 
 application = Flask(__name__)
 application.config.update(
@@ -37,12 +37,6 @@ if all([application.config[e] for e in ['MEMCACHIER_USERNAME', 'MEMCACHIER_PASSW
         application.config['MEMCACHIER_USERNAME'],
         application.config['MEMCACHIER_PASSWORD']
     )
-
-# Pixels when response should be image
-GREEN_PIXEL = 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M/wHwAEBgIApD5fRAAAAABJRU5ErkJggg=='
-RED_PIXEL = 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYmD4DwABEQEDJEJphgAAAABJRU5ErkJggg=='
-GRAY_PIXEL = ' iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mOsZTrxHwAEkwJIZq8WWwAAAABJRU5ErkJggg== '
-
 
 def verify_token(f):
     def _wrapper(*args, **kwargs):
@@ -115,10 +109,8 @@ def status(child):
             'status': 'ok' if child_ok else 'critical'
         }), 200
     elif format == 'pixel':
-        pixel = GREEN_PIXEL if child_ok else RED_PIXEL
-        response = make_response(base64.b64decode(pixel))
-        response.headers.set('Content-Type', 'image/jpeg')
-        return response
+        color = '00ff00' if child_ok else 'ff0000'
+        return redirect(f'https://via.placeholder.com/150/{color}?text=%20')
 
 
 application.add_url_rule('/api/v1/nurture/<child>', 'nurture', nurture, methods=['POST'])
