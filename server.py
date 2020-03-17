@@ -110,7 +110,7 @@ def status(child):
         }), 200
     elif format == 'pixel':
         color = '00ff00' if child_ok else 'ff0000'
-        label = f"{child}+{child_data['last_cared'].strftime('%Y-%m-%d %H:%M')}"
+        label = child_data['last_cared'].strftime('%b %d %H:%M')
         return redirect(f'https://via.placeholder.com/360x120/{color}?text={label}')
 
 
