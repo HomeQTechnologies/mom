@@ -96,7 +96,10 @@ def status(child):
     format = request.args.get('format', 'json')
     timeout = int(request.args.get('timeout', 30))
 
-    if not child_data:
+    if not child_data and format == 'pixel':
+        return redirect(f'https://via.placeholder.com/360x120/aaa?text=No+such+process')
+
+    if not child_data and format == 'json':
         return jsonify({}), 412
 
     if not format in ['json', 'pixel']:
