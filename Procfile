@@ -1,1 +1,1 @@
-web: gunicorn -t 20 -w 1 server
+web: gunicorn -t 20 -w 4 server
