@@ -23,7 +23,7 @@ class BasicTests(unittest.TestCase):
         response = self.client.post('/api/v1/nurture/child?token=token')
         self.assertEqual(response.status_code, 204)
 
-    @freeze_time('2020-05-08')
+    @freeze_time('2020-05-08 16:00')
     def test_mother_get_child_status(self):
         response = self.client.post('/api/v1/nurture/child2?token=token')
         self.assertEqual(response.status_code, 204)
@@ -31,7 +31,7 @@ class BasicTests(unittest.TestCase):
         response = self.client.get('/api/v1/status/child2?token=token&format=json')
         self.assertEqual(response.status_code, 200)
         self.assertDictEqual(response.json, {
-            'last_cared': '2020-05-08T00:00:00',
+            'last_cared': '2020-05-08T16:00:00+00:00',
             'name': 'child2',
             'status': 'ok'
         })
@@ -45,13 +45,14 @@ class BasicTests(unittest.TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json['status'], 'critical')
 
+    @freeze_time('2020-05-08 16:17')
     def test_mother_gets_visual_indication(self):
         response = self.client.post('/api/v1/nurture/child4?token=token')
         self.assertEqual(response.status_code, 204)
 
         response = self.client.get('/api/v1/status/child4?token=token&format=pixel&timeout=1')
-        self.assertEqual(response.status_code, 200)
-
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.headers['Location'], 'https://via.placeholder.com/360x120/00ff00?text=May%2008%2018:17')
 
 if __name__ == "__main__":
     unittest.main()

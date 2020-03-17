@@ -4,3 +4,4 @@ requests
 pytest
 freezegun
 python-binary-memcached
+pytz

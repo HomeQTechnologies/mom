@@ -1,9 +1,10 @@
-import base64
+import datetime
 import datetime
 import os
 
 import bmemcached
-from flask import Flask, request, make_response, jsonify, redirect
+import pytz
+from flask import Flask, request, jsonify, redirect
 
 application = Flask(__name__)
 application.config.update(
@@ -38,6 +39,7 @@ if all([application.config[e] for e in ['MEMCACHIER_USERNAME', 'MEMCACHIER_PASSW
         application.config['MEMCACHIER_PASSWORD']
     )
 
+
 def verify_token(f):
     def _wrapper(*args, **kwargs):
         if application.config['TOKEN'] != request.args.get('token'):
@@ -52,7 +54,7 @@ def verify_token(f):
 def nurture(child):
     """ Writing down the timestamp we last cared for the child """
     DATA_STORE.set(child, {
-        'last_cared': datetime.datetime.now()
+        'last_cared': datetime.datetime.utcnow().replace(tzinfo=pytz.UTC)
     })
     return jsonify({}), 204
 
@@ -100,7 +102,7 @@ def status(child):
     if not format in ['json', 'pixel']:
         return jsonify({}), 412
 
-    child_ok = datetime.datetime.now() < child_data['last_cared'] + datetime.timedelta(seconds=timeout)
+    child_ok = datetime.datetime.now(datetime.timezone.utc) < child_data['last_cared'] + datetime.timedelta(seconds=timeout)
 
     if format == 'json':
         return jsonify({
@@ -110,11 +112,10 @@ def status(child):
         }), 200
     elif format == 'pixel':
         color = '00ff00' if child_ok else 'ff0000'
-        label = child_data['last_cared'].strftime('%b %d %H:%M')
+        stockholm_child_time = child_data['last_cared'].astimezone(pytz.timezone("CET"))
+        label = stockholm_child_time.strftime('%b %d %H:%M')
         return redirect(f'https://via.placeholder.com/360x120/{color}?text={label}')
 
 
 application.add_url_rule('/api/v1/nurture/<child>', 'nurture', nurture, methods=['POST'])
 application.add_url_rule('/api/v1/status/<child>', 'status', status, methods=['GET'])
-
-
