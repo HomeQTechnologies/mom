@@ -110,8 +110,11 @@ def status(child):
         }), 200
     elif format == 'pixel':
         color = '00ff00' if child_ok else 'ff0000'
-        return redirect(f'https://via.placeholder.com/150/{color}?text=%20')
+        label = f"{child}+{child_data['last_cared'].strftime('%Y-%m-%d %H:%M')}"
+        return redirect(f'https://via.placeholder.com/360x120/{color}?text={label}')
 
 
 application.add_url_rule('/api/v1/nurture/<child>', 'nurture', nurture, methods=['POST'])
 application.add_url_rule('/api/v1/status/<child>', 'status', status, methods=['GET'])
+
+
